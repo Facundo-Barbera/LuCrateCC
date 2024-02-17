@@ -1,15 +1,14 @@
 -- This is a library for downloading repositories from GitHub.
-
 local httpAPIEnabled = http and true or false
-local defaultBranch = "main" -- Adjust based on common usage, "master" or "main"
+local defaultBranch = "main"
 
 -- Check if HTTP API is enabled
-function checkHTTPAPI()
+function CheckHttpApi()
     return httpAPIEnabled
 end
 
 -- Download File
-function downloadFile(path, url, name)
+function DownloadFile(path, url, name)
     if not httpAPIEnabled then
         error("HTTP API is disabled.")
     end
@@ -28,7 +27,7 @@ function downloadFile(path, url, name)
 end
 
 -- Get Directory Contents
-function getGithubContents(user, repo, path, branch)
+function GetGithubContents(user, repo, path, branch)
     if not httpAPIEnabled then
         error("HTTP API is disabled.")
     end
@@ -47,18 +46,18 @@ function getGithubContents(user, repo, path, branch)
 end
 
 -- Download Repository Contents
-function downloadRepository(user, repo, path, branch, localPath)
+function DownloadRepository(user, repo, path, branch, localPath)
     local effectivePath = path or ""
     local effectiveBranch = branch or defaultBranch
     local effectiveLocalPath = localPath or "downloads/" .. repo
-    local pType, pPath, pName = getGithubContents(user, repo, effectivePath, effectiveBranch)
+    local pType, pPath, pName = GetGithubContents(user, repo, effectivePath, effectiveBranch)
     for i, type in ipairs(pType) do
         if type == "file" then
             local filePath = effectiveLocalPath .. "/" .. pName[i]
             local fileURL = "https://raw.githubusercontent.com/" .. user .. "/" .. repo .. "/" .. effectiveBranch .. "/" .. pPath[i]
-            downloadFile(filePath, fileURL, pName[i])
+            DownloadFile(filePath, fileURL, pName[i])
         elseif type == "dir" then
-            downloadRepository(user, repo, pPath[i], effectiveBranch, effectiveLocalPath .. "/" .. pName[i])
+            DownloadRepository(user, repo, pPath[i], effectiveBranch, effectiveLocalPath .. "/" .. pName[i])
         end
     end
 end
