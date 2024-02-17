@@ -1,16 +1,15 @@
 -- This is a library for downloading repositories from GitHub.
-local githubDownloader = {}
 
 local httpAPIEnabled = http and true or false
 local defaultBranch = "main" -- Adjust based on common usage, "master" or "main"
 
 -- Check if HTTP API is enabled
-function githubDownloader.checkHTTPAPI()
+function checkHTTPAPI()
     return httpAPIEnabled
 end
 
 -- Download File
-function githubDownloader.downloadFile(path, url, name)
+function downloadFile(path, url, name)
     if not httpAPIEnabled then
         error("HTTP API is disabled.")
     end
@@ -29,7 +28,7 @@ function githubDownloader.downloadFile(path, url, name)
 end
 
 -- Get Directory Contents
-function githubDownloader.getGithubContents(user, repo, path, branch)
+function getGithubContents(user, repo, path, branch)
     if not httpAPIEnabled then
         error("HTTP API is disabled.")
     end
@@ -48,20 +47,18 @@ function githubDownloader.getGithubContents(user, repo, path, branch)
 end
 
 -- Download Repository Contents
-function githubDownloader.downloadRepository(user, repo, path, branch, localPath)
+function downloadRepository(user, repo, path, branch, localPath)
     local effectivePath = path or ""
     local effectiveBranch = branch or defaultBranch
     local effectiveLocalPath = localPath or "downloads/" .. repo
-    local pType, pPath, pName = githubDownloader.getGithubContents(user, repo, effectivePath, effectiveBranch)
+    local pType, pPath, pName = getGithubContents(user, repo, effectivePath, effectiveBranch)
     for i, type in ipairs(pType) do
         if type == "file" then
             local filePath = effectiveLocalPath .. "/" .. pName[i]
             local fileURL = "https://raw.githubusercontent.com/" .. user .. "/" .. repo .. "/" .. effectiveBranch .. "/" .. pPath[i]
-            githubDownloader.downloadFile(filePath, fileURL, pName[i])
+            downloadFile(filePath, fileURL, pName[i])
         elseif type == "dir" then
-            githubDownloader.downloadRepository(user, repo, pPath[i], effectiveBranch, effectiveLocalPath .. "/" .. pName[i])
+            downloadRepository(user, repo, pPath[i], effectiveBranch, effectiveLocalPath .. "/" .. pName[i])
         end
     end
 end
-
-return githubDownloader
